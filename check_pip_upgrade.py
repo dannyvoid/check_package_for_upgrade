@@ -2,25 +2,24 @@ import subprocess
 import sys
 
 
-def check_local_pip(package):
+def check_local_package(package):
     import re
-    pip_show = f"python -m pip show {package}"
-    version = subprocess.check_output(pip_show, shell=True)
+    version = subprocess.check_output(f"python -m pip show {package}", shell=True)
     version = version.decode('utf-8')
     version = re.findall(r'\d+\.\d+\.\d+', version)
     version = version[0]
     return version
 
 
-def check_remote_pip(package):
+def check_remote_package(package):
     import luddite
     version = luddite.get_version_pypi(package)
     return version
 
 
-def main(package):
-    local_version = check_local_pip(package)
-    remote_version = check_remote_pip(package)
+def upgrade_package(package):
+    local_version = check_local_package(package)
+    remote_version = check_remote_package(package)
     if local_version == remote_version:
         print(f"{package} is up to date (local: {local_version})")
     else:
@@ -35,6 +34,15 @@ def main(package):
             print(f"{package} not upgraded")
 
 
+def main():
+    if len(sys.argv) > 1:
+        package = sys.argv[1]
+        upgrade_package(package)
+    else:
+        package = input("Enter a package name: ")
+        upgrade_package(package)
+        input("Press enter to exit")
+
+
 if __name__ == "__main__":
-    package = sys.argv[1]
-    main(package)
+    main()
