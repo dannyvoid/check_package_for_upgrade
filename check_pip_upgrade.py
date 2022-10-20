@@ -1,9 +1,9 @@
-import subprocess
 import sys
 import os
 import shutil
 import pkg_resources
 import luddite
+import pip
 
 auto_upgrade = ["pip"]
 
@@ -28,7 +28,7 @@ def package_installed(package):
 
 def install_package(package):
     if input(f"Do you want to install {package}? (y/n): ") == "y":
-        subprocess.call(f"python -m pip install {package}", shell=True)
+        pip.main(["install", package])
         print(f"{package} installed")
     else:
         print(f"{package} not installed")
@@ -59,13 +59,11 @@ def upgrade_package(package):
 
         if package in auto_upgrade:
             print(f"Auto upgrading {package}")
-            subprocess.call(f"python -m pip install --upgrade {package}", shell=True)
+            pip.main(["install", "--upgrade", package])
             print(f"{package} upgraded")
         else:
             if input("Do you want to upgrade? (y/n): ") == "y":
-                subprocess.call(
-                    f"python -m pip install --upgrade {package}", shell=True
-                )
+                pip.main(["install", "--upgrade", package])
                 print(f"{package} upgraded")
             else:
                 print(f"{package} not upgraded")
