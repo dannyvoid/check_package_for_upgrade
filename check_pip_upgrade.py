@@ -17,7 +17,6 @@ def fix_corrupted_package():
         for package in os.listdir(site_packages):
             if package.startswith("~"):
                 shutil.rmtree(os.path.join(site_packages, package))
-    return
 
 
 def package_installed(package):
@@ -56,7 +55,6 @@ def upgrade_package(package):
 
     if local_version == remote_version:
         print(f"{package} is up to date (local: {local_version})")
-        return
     else:
         print(
             f"{package} is out of date (local: {local_version} < remote: {remote_version})"
@@ -68,7 +66,6 @@ def upgrade_package(package):
             print(f"Auto upgrading {package}")
             subprocess.call(f"python -m pip install --upgrade {package}", shell=True)
             print(f"{package} upgraded")
-            return
         else:
             if input("Do you want to upgrade? (y/n): ") == "y":
                 subprocess.call(
@@ -77,7 +74,6 @@ def upgrade_package(package):
                 print(f"{package} upgraded")
             else:
                 print(f"{package} not upgraded")
-            return
 
 
 def main():
