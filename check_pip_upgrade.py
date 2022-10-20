@@ -14,18 +14,10 @@ def fix_corrupted_package():
     site_packages = os.path.normpath(site_packages)
 
     if os.path.exists(site_packages):
-        packages = os.listdir(site_packages)
-        packages = [package for package in packages if package.startswith("~")]
-
-    if packages:
-        for package in packages:
-            package = os.path.join(site_packages, package)
-            package = os.path.normpath(package)
-            shutil.rmtree(package)
-        return
-
-    else:
-        return
+        for package in os.listdir(site_packages):
+            if package.startswith("~"):
+                shutil.rmtree(os.path.join(site_packages, package))
+    return
 
 
 def package_installed(package):
