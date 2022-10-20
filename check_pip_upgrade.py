@@ -37,7 +37,11 @@ def check_if_package_installed(package):
 
 
 def install_package(package):
-    subprocess.call(f"python -m pip install {package}", shell=True)
+    if input(f"Do you want to install {package}? (y/n): ") == "y":
+        subprocess.call(f"python -m pip install {package}", shell=True)
+        print(f"{package} installed")
+    else:
+        print(f"{package} not installed")
 
 
 def check_local_package(package):
@@ -82,20 +86,27 @@ def upgrade_package(package):
 
 def main():
     if len(sys.argv) > 1:
-        package = sys.argv[1]
+        packages_to_check = sys.argv[1:]
     else:
-        package = input("Enter a package name: ")
+        packages_to_check = input(
+            "Enter a package name (seperate multiple package names by space): "
+        )
 
-    package = package.split()[0]
+    if isinstance(packages_to_check, str):
+        packages_to_check = packages_to_check.split()
 
-    if package != "pip":
-        upgrade_package("pip")
+    if "pip" not in packages_to_check:
+        packages_to_check.insert(0, "pip")
 
-    if not check_if_package_installed(package):
-        fix_corrupted_package()
-        install_package(package)
+    for package in packages_to_check:
+        package = re.sub(r"[^\w.-]", "", package)
 
-    upgrade_package(package)
+        if check_if_package_installed(package):
+            upgrade_package(package)
+        else:
+            print(f"{package} is not installed")
+            fix_corrupted_package()
+            install_package(package)
 
 
 if __name__ == "__main__":
