@@ -72,7 +72,8 @@ def main():
             "Enter a package name (seperate multiple package names by space): "
         )
 
-    package_list = package_list.split()
+    if isinstance(package_list, str):
+        package_list = package_list.split()
 
     if "pip" not in package_list:
         package_list.insert(0, "pip")
