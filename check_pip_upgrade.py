@@ -4,7 +4,6 @@ import os
 import shutil
 import pkg_resources
 import luddite
-import re
 
 auto_upgrade = ["pip"]
 
@@ -36,16 +35,12 @@ def install_package(package):
 
 
 def get_local_package_version(package):
-    version = subprocess.check_output(f"python -m pip show {package}", shell=True)
-    version = version.decode("utf-8")
-    version = re.findall(r"Version: (.*)", version)[0]
-    version = re.sub(r"[^\d.]", "", version)
+    version = pkg_resources.get_distribution(package).version
     return version
 
 
 def get_remote_package_version(package):
     version = luddite.get_version_pypi(package)
-    version = re.sub(r"[^\d.]", "", version)
     return version
 
 
@@ -91,8 +86,6 @@ def main():
         package_list.insert(0, "pip")
 
     for package in package_list:
-        package = re.sub(r"[^\w.-]", "", package)
-
         if package_installed(package):
             upgrade_package(package)
         else:
