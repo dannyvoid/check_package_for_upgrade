@@ -32,13 +32,11 @@ def install_package(package):
 
 
 def get_local_package_version(package):
-    version = pkg_resources.get_distribution(package).version
-    return version
+    return pkg_resources.get_distribution(package).version
 
 
 def get_remote_package_version(package):
-    version = luddite.get_version_pypi(package)
-    return version
+    return luddite.get_version_pypi(package)
 
 
 def upgrade_package(package):
