@@ -1,9 +1,6 @@
-import sys
-import os
-import shutil
-import pkg_resources
+import os, sys, shutil
+import pip, pkg_resources
 import luddite
-import pip
 
 auto_upgrade = ["pip"]
 
