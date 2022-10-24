@@ -13,6 +13,23 @@ def package_installed(package):
         return False
 
 
+def compare_versions(local, remote, package):
+    if parse_version(local) == parse_version(remote):
+        print(f"{package} is up to date.", end=" ")
+        print(f"(local: {local})")
+        return 0
+
+    elif parse_version(local) < parse_version(remote):
+        print(f"{package} is out of date.", end=" ")
+        print(f"(local: {local} < remote: {remote})")
+        return 1
+
+    elif parse_version(local) > parse_version(remote):
+        print(f"{package} is newer than remote.", end=" ")
+        print(f"(local: {local} > remote: {remote})")
+        return -1
+
+
 def install_package(package):
     if input(f"Do you want to install {package}? (y/n): ") == "y":
         pip.main(["install", package])
@@ -25,19 +42,7 @@ def upgrade_package(package):
     local_version = get_distribution(package).version
     remote_version = luddite.get_version_pypi(package)
 
-    if local_version == remote_version:
-        print(f"{package} is up to date (local: {local_version})")
-    else:
-        if parse_version(local_version) < parse_version(remote_version):
-            print(
-                f"{package} is out of date (local: {local_version} < remote: {remote_version})"
-            )
-
-        if parse_version(local_version) > parse_version(remote_version):
-            print(
-                f"{package} is newer than remote (local: {local_version} > remote: {remote_version})"
-            )
-
+    if compare_versions(local_version, remote_version, package) != 0:
         print(f"local: {local_version}")
         print(f"remote: {remote_version}")
 
@@ -67,9 +72,7 @@ def main():
     if len(sys.argv) > 1:
         package_list = sys.argv[1:]
     else:
-        package_list = input(
-            "Enter a package name (seperate multiple package names by space): "
-        )
+        package_list = input("Enter packages (seperate multiple names by space): ")
 
     if isinstance(package_list, str):
         package_list = package_list.split()
