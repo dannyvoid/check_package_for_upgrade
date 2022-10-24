@@ -65,7 +65,11 @@ def fix_corrupted_package():
     if os.path.exists(site_packages):
         for package in os.listdir(site_packages):
             if package.startswith("~"):
-                shutil.rmtree(os.path.join(site_packages, package))
+                if input(f"Do you want to delete {package}? (y/n): ") == "y":
+                    shutil.rmtree(os.path.join(site_packages, package))
+                    print(f"{package} deleted")
+                else:
+                    print(f"{package} not deleted")
 
 
 def main():
