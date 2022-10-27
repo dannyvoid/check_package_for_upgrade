@@ -81,7 +81,9 @@ def main():
     if isinstance(package_list, str):
         package_list = package_list.split()
 
-    fix_corrupted_package(os.path.normpath(os.path.join(os.path.dirname(os.__file__), "site-packages")))
+    fix_corrupted_package(
+        os.path.normpath(os.path.join(os.path.dirname(os.__file__), "site-packages"))
+    )
 
     for package in package_list:
         if package_installed(package):
