@@ -19,23 +19,28 @@ def compare_versions(local, remote, package):
         print(f"(local: {local})")
         return 0
 
-    elif parse_version(local) < parse_version(remote):
+    if parse_version(local) < parse_version(remote):
         print(f"{package} is out of date.", end=" ")
         print(f"(local: {local} < remote: {remote})")
         return 1
 
-    elif parse_version(local) > parse_version(remote):
+    if parse_version(local) > parse_version(remote):
         print(f"{package} is newer than remote.", end=" ")
         print(f"(local: {local} > remote: {remote})")
         return -1
 
 
-def install_package(package):
-    if input(f"Do you want to install {package}? (y/n): ") == "y":
+def install_package(package, auto_install=False):
+    if auto_install:
+        print(f"Auto installing {package}")
         pip.main(["install", package])
         print(f"{package} installed")
     else:
-        print(f"{package} not installed")
+        if input(f"Do you want to install {package}? (y/n): ") == "y":
+            pip.main(["install", package])
+            print(f"{package} installed")
+        else:
+            print(f"{package} not installed")
 
 
 def upgrade_package(package):
@@ -47,29 +52,24 @@ def upgrade_package(package):
         print(f"remote: {remote_version}")
 
         if package in auto_upgrade:
-            print(f"Auto upgrading {package}")
-            pip.main(["install", "--upgrade", package])
-            print(f"{package} upgraded")
+            install_package(package, auto_install=True)
         else:
-            if input("Do you want to upgrade? (y/n): ") == "y":
-                pip.main(["install", "--upgrade", package])
-                print(f"{package} upgraded")
-            else:
-                print(f"{package} not upgraded")
+            install_package(package)
 
 
-def fix_corrupted_package():
-    site_packages = os.path.join(os.path.dirname(os.__file__), "site-packages")
-    site_packages = os.path.normpath(site_packages)
+def fix_corrupted_package(directory):
+    directory = os.path.normpath(directory)
 
-    if os.path.exists(site_packages):
-        for package in os.listdir(site_packages):
+    if os.path.exists(directory):
+        for package in os.listdir(directory):
             if package.startswith("~"):
                 if input(f"Do you want to delete {package}? (y/n): ") == "y":
-                    shutil.rmtree(os.path.join(site_packages, package))
+                    shutil.rmtree(os.path.join(directory, package))
                     print(f"{package} deleted")
                 else:
                     print(f"{package} not deleted")
+    else:
+        print(f"{directory} does not exist")
 
 
 def main():
@@ -81,12 +81,13 @@ def main():
     if isinstance(package_list, str):
         package_list = package_list.split()
 
+    fix_corrupted_package(os.path.normpath(os.path.join(os.path.dirname(os.__file__), "site-packages")))
+
     for package in package_list:
         if package_installed(package):
             upgrade_package(package)
         else:
             print(f"{package} is not installed")
-            fix_corrupted_package()
             install_package(package)
 
 
