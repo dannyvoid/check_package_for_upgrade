@@ -2,8 +2,6 @@ import os, sys, shutil, subprocess
 import luddite
 from pkg_resources import parse_version, get_distribution, DistributionNotFound
 
-auto_upgrade = []
-
 
 def package_installed(package):
     try:
@@ -47,6 +45,8 @@ def upgrade_package(package):
     local_version = get_distribution(package).version
     remote_version = luddite.get_version_pypi(package)
 
+    auto_upgrade = []
+
     if compare_versions(local_version, remote_version, package) != 0:
         print(f"local: {local_version}")
         print(f"remote: {remote_version}")
@@ -60,7 +60,7 @@ def upgrade_package(package):
 def fix_corrupted_package():
     dirs = subprocess.check_output(["python", "-m", "site", "--user-site"])
     dirs = dirs.decode("utf-8").split(os.linesep)
-    dirs = [dir for dir in dirs if dir != "" if os.path.exists(dir)]
+    dirs = [os.path.normpath(dir) for dir in dirs if os.path.exists(dir)]
 
     for directory in dirs:
         for package in os.listdir(directory):
