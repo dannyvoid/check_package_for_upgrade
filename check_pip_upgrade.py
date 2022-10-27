@@ -1,4 +1,4 @@
-import os, sys, shutil, pip
+import os, sys, shutil, subprocess
 import luddite
 from pkg_resources import parse_version, get_distribution, DistributionNotFound
 
@@ -33,11 +33,11 @@ def compare_versions(local, remote, package):
 def install_package(package, auto_install=False):
     if auto_install:
         print(f"Auto installing {package}")
-        pip.main(["install", package])
+        subprocess.run(["pip", "install", package])
         print(f"{package} installed")
     else:
         if input(f"Do you want to install {package}? (y/n): ") == "y":
-            pip.main(["install", package])
+            subprocess.run(["pip", "install", package])
             print(f"{package} installed")
         else:
             print(f"{package} not installed")
@@ -57,10 +57,12 @@ def upgrade_package(package):
             install_package(package)
 
 
-def fix_corrupted_package(directory):
-    directory = os.path.normpath(directory)
+def fix_corrupted_package():
+    dirs = subprocess.check_output(["python", "-m", "site", "--user-site"])
+    dirs = dirs.decode("utf-8").split(os.linesep)
+    dirs = [dir for dir in dirs if dir != "" if os.path.exists(dir)]
 
-    if os.path.exists(directory):
+    for directory in dirs:
         for package in os.listdir(directory):
             if package.startswith("~"):
                 if input(f"Do you want to delete {package}? (y/n): ") == "y":
@@ -68,8 +70,6 @@ def fix_corrupted_package(directory):
                     print(f"{package} deleted")
                 else:
                     print(f"{package} not deleted")
-    else:
-        print(f"{directory} does not exist")
 
 
 def main():
@@ -81,9 +81,7 @@ def main():
     if isinstance(package_list, str):
         package_list = package_list.split()
 
-    fix_corrupted_package(
-        os.path.normpath(os.path.join(os.path.dirname(os.__file__), "site-packages"))
-    )
+    fix_corrupted_package()
 
     for package in package_list:
         if package_installed(package):
