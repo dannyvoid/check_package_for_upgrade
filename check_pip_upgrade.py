@@ -29,21 +29,34 @@ def compare_versions(local, remote, package):
 
 
 def install_package(package, auto_install=False):
+    version = get_version(package, "remote")
+    name_version = f'"{package}" ({version})'
+
     if auto_install:
-        print(f"Auto installing {package}")
+        print(f"Auto installing {name_version}")
         subprocess.run(["pip", "install", package])
-        print(f"{package} installed")
+        print(f"{name_version} installed")
     else:
-        if input(f"Do you want to install {package}? (y/n): ") == "y":
+        if input(f"Do you want to install {name_version}? (y/n): ") == "y":
             subprocess.run(["pip", "install", package])
-            print(f"{package} installed")
+            print(f"{name_version} installed")
         else:
-            print(f"{package} not installed")
+            print(f"{name_version} not installed")
+
+
+def get_version(package, type):
+    types = ["local", "remote"]
+    if type not in types:
+        raise ValueError(f"type must be one of {types}")
+    elif type == "local":
+        return get_distribution(package).version
+    elif type == "remote":
+        return luddite.get_version_pypi(package)
 
 
 def upgrade_package(package):
-    local_version = get_distribution(package).version
-    remote_version = luddite.get_version_pypi(package)
+    local_version = get_version(package, "local")
+    remote_version = get_version(package, "remote")
 
     auto_upgrade = []
 
