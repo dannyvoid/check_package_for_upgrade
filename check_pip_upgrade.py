@@ -58,13 +58,11 @@ def upgrade_package(package):
     local_version = get_version(package, "local")
     remote_version = get_version(package, "remote")
 
-    auto_upgrade = []
-
     if compare_versions(local_version, remote_version, package) != 0:
         print(f"local: {local_version}")
         print(f"remote: {remote_version}")
 
-        if package in auto_upgrade:
+        if package in []:
             install_package(package, auto_install=True)
         else:
             install_package(package)
