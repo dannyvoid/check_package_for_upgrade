@@ -47,7 +47,7 @@ def install_package(package, auto_install=False):
 def get_version(package, type):
     types = ["local", "remote"]
     if type not in types:
-        raise ValueError(f"type must be one of {types}")
+        raise ValueError(f"type must be one of: {types}")
     elif type == "local":
         return get_distribution(package).version
     elif type == "remote":
