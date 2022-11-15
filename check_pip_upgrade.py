@@ -2,6 +2,8 @@ import os, sys, shutil, subprocess
 import luddite
 from pkg_resources import parse_version, get_distribution, DistributionNotFound
 
+auto_packages = []
+
 
 def package_installed(package):
     try:
@@ -30,7 +32,10 @@ def compare_versions(local, remote, package):
 
 def install_package(package, auto_install=False):
     version = get_version(package, "remote")
-    name_version = f'"{package}" ({version})'
+    name_version = f"{package} ({version})"
+
+    if package in auto_packages:
+        auto_install = True
 
     if auto_install:
         print(f"Auto installing {name_version}")
@@ -46,8 +51,9 @@ def install_package(package, auto_install=False):
 
 def get_version(package, type):
     types = ["local", "remote"]
+
     if type not in types:
-        raise ValueError(f"type must be one of: {types}")
+        raise ValueError(f"type must be one of {types}")
     elif type == "local":
         return get_distribution(package).version
     elif type == "remote":
@@ -61,11 +67,7 @@ def upgrade_package(package):
     if compare_versions(local_version, remote_version, package) != 0:
         print(f"local: {local_version}")
         print(f"remote: {remote_version}")
-
-        if package in []:
-            install_package(package, auto_install=True)
-        else:
-            install_package(package)
+        install_package(package)
 
 
 def fix_corrupted_package():
@@ -73,14 +75,22 @@ def fix_corrupted_package():
     dirs = dirs.decode("utf-8").split(os.linesep)
     dirs = [os.path.normpath(dir) for dir in dirs if os.path.exists(dir)]
 
+    corrupted_pkgs = []
     for directory in dirs:
         for package in os.listdir(directory):
             if package.startswith("~"):
-                if input(f"Do you want to delete {package}? (y/n): ") == "y":
-                    shutil.rmtree(os.path.join(directory, package))
-                    print(f"{package} deleted")
-                else:
-                    print(f"{package} not deleted")
+                corrupted_pkgs.append(os.path.join(directory, package))
+
+    if corrupted_pkgs:
+        print(f"Corrupted packages found: {corrupted_pkgs}")
+
+        for package in corrupted_pkgs:
+            package_name = os.path.basename(package)
+            if input(f"Do you want to delete {package_name}? (y/n): ") == "y":
+                shutil.rmtree(package)
+                print(f"{package} deleted")
+            else:
+                print(f"{package} not deleted")
 
 
 def main():
